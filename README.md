@@ -37,7 +37,7 @@ GitHub Actions builds both native platforms. Tags matching the CMake version (`v
 
 ## Model and validation limits
 
-Two-state T4 recovery plus history memory; feedback FET detection; GR-dependent distortion; oversampling; linked/dual-channel or M/S; HPF; dry alignment; slow RMS auto compensation. This is an original behavior model, not a calibrated component-by-component hardware replica. See VALIDATION.md for what was actually checked. No commercial DAW compatibility certification is claimed.
+Two-state T4 recovery plus history memory; feedback FET detection; adapted MIT shunt-JFET gain cell and Jiles-Atherton core; oversampling; linked/dual-channel or M/S; HPF; dry alignment; slow RMS auto compensation. This is a behavior model with attributed circuit sections, not a hardware-calibrated complete circuit replica. See VALIDATION.md for what was actually checked. No commercial DAW compatibility certification is claimed.
 
 ## License
 

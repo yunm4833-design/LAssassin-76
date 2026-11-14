@@ -12,6 +12,9 @@ on:
         default: false
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 jobs:
   build:
     name: Build ${{ matrix.platform }}
@@ -52,7 +55,20 @@ jobs:
         run: |
           mkdir -p "$HOME/Library/Audio/Plug-Ins/Components"
           cp -R "build/LAssassin76_artefacts/Release/AU/LAssassin-76.component" "$HOME/Library/Audio/Plug-Ins/Components/"
-          auval -v aufx La76 LAsn
+          plist="build/LAssassin76_artefacts/Release/AU/LAssassin-76.component/Contents/Info.plist"
+          plutil -p "$plist"
+          unitType=$(/usr/libexec/PlistBuddy -c 'Print :AudioComponents:0:type' "$plist")
+          unitSubtype=$(/usr/libexec/PlistBuddy -c 'Print :AudioComponents:0:subtype' "$plist")
+          unitMaker=$(/usr/libexec/PlistBuddy -c 'Print :AudioComponents:0:manufacturer' "$plist")
+          killall -9 AudioComponentRegistrar 2>/dev/null || true
+          result=1
+          for attempt in 1 2 3; do
+            if auval -v "$unitType" "$unitSubtype" "$unitMaker" > auval.log 2>&1; then result=0; break; fi
+            killall -9 AudioComponentRegistrar 2>/dev/null || true
+            sleep 2
+          done
+          cat auval.log
+          exit "$result"
       - name: Package
         run: python scripts/package_release.py --platform ${{ matrix.platform }} --artefacts build/LAssassin76_artefacts/Release --out dist
       - uses: actions/upload-artifact@v4

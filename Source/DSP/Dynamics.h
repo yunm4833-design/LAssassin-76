@@ -1,4 +1,5 @@
 #pragma once
+#include "PhysicalStages.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -70,19 +71,20 @@ struct DCBlock
 };
 struct Colour
 {
-    LowPass bass, treble;
+    LowPass treble;
+    MagneticTransformer iron;
     DCBlock dc;
     void prepare(double fs, double cutoff)
     {
-        bass.prepare(fs, 140);
+        iron.prepare(fs);
         treble.prepare(fs, cutoff);
         dc.prepare(fs);
     }
     float tick(float x, float drive, float bias)
     {
-        const float low = bass.tick(x);
-        // Low-band transformer residual; unity small-signal transfer.
-        x += .08f * (std::tanh(1.7f * low) / 1.7f - low);
+        // A gentle blend keeps the existing reference level while adding
+        // stateful flux/history behavior instead of static bass saturation.
+        x += .08f * (iron.process(x) - x);
         return treble.tick(dc.tick(asymmetric(x, drive, bias)));
     }
 };
@@ -234,12 +236,12 @@ class FETCompressor
             const float localSlope = (ratio - 1.f) * std::clamp((over + width * .5f) / width, 0.f, 1.f);
             const double step = delta / (1.0 + localSlope);
             s.reduction += step * (target - s.reduction);
-            gr[c] = float(s.reduction);
-            float y = x[c] * dbGain(-float(s.reduction));
+            gr[c] = JfetCell::reduction(float(s.reduction));
+            float y = JfetCell::process(x[c], float(s.reduction), p.all);
             s.feedback = y; // tap before makeup/output transformer; one OS sample causal delay
             const float depth = std::clamp(float(s.reduction) / 24.f, 0.f, 1.f);
-            const float drive = .65f + 1.6f * depth + 2.0f * p.all;
-            const float bias = .015f + .065f * depth + .08f * p.all;
+            const float drive = .14f + .4f * depth + .8f * p.all;
+            const float bias = -.18f; // Single-ended Class A operating-point asymmetry.
             y = s.fetDC.tick(asymmetric(y, drive, bias));
             x[c] = s.outputColour.tick(y * outputGain, .75f, .025f);
         }

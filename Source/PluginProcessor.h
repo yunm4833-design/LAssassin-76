@@ -10,6 +10,8 @@ class LAssassinProcessor final : public juce::AudioProcessor
     void releaseResources() override {}
     using juce::AudioProcessor::processBlock;
     void processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &) override;
+    using juce::AudioProcessor::processBlockBypassed;
+    void processBlockBypassed(juce::AudioBuffer<float> &, juce::MidiBuffer &) override;
     bool isBusesLayoutSupported(const BusesLayout &) const override;
     juce::AudioProcessorEditor *createEditor() override;
     bool hasEditor() const override { return true; }
@@ -30,6 +32,7 @@ class LAssassinProcessor final : public juce::AudioProcessor
     static juce::AudioProcessorValueTreeState::ParameterLayout layout();
 
   private:
+    void processInternal(juce::AudioBuffer<float> &, juce::MidiBuffer &, bool hostBypassed);
     assassin::Values snapshot() const;
     std::array<std::atomic<float> *, assassin::count> raw{};
     assassin::Values minimum{}, maximum{}, defaults{};
@@ -37,6 +40,8 @@ class LAssassinProcessor final : public juce::AudioProcessor
     std::array<assassin::Delay, 2> dryDelay;
     juce::AudioBuffer<float> work;
     std::array<juce::SmoothedValue<float>, 5> global;
+    juce::SmoothedValue<float> hostWet;
+    bool firstBlock = true;
     double fs = 48000;
     int maxBlock = 512;
     std::atomic<int> currentProgram{0};

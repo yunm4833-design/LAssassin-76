@@ -139,6 +139,22 @@ int main()
             check(std::abs(restored.apvts.getRawParameterValue("peak")->load() - 80.f) < 1.e-5f,
                   "state restore failed");
         }
+        {
+            LAssassinProcessor bypassed;
+            bypassed.prepareToPlay(48000, 64);
+            juce::AudioBuffer<float> impulse(2, 257);
+            impulse.clear();
+            impulse.setSample(0, 0, 1);
+            impulse.setSample(1, 0, 1);
+            juce::MidiBuffer midi;
+            guard = true;
+            bypassed.processBlockBypassed(impulse, midi);
+            guard = false;
+            for (int i = 0; i < impulse.getNumSamples(); ++i)
+                check(std::abs(impulse.getSample(0, i) - (i == bypassed.getLatencySamples() ? 1.f : 0.f)) <
+                          1.e-5f,
+                      "host bypass must retain reported latency");
+        }
         check(allocations.load() == 0, "C++ heap allocation during processBlock");
         std::cout << "Integration tests passed: latency, block splitting, automation, state, no C++ heap "
                      "allocations\n";

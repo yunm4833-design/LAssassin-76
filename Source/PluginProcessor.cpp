@@ -98,11 +98,23 @@ void LAssassinProcessor::prepareToPlay(double sr, int block)
         global[i].reset(sr, i == 3 ? .2 : .020);
         global[i].setCurrentAndTargetValue(initial[i]);
     }
+    hostWet.reset(sr, .020);
+    hostWet.setCurrentAndTargetValue(1.f);
+    firstBlock = true;
     dryPower = wetPower = autoDb = 0;
     powerPole = pole(.4, sr);
     autoPole = pole(1.5, sr);
 }
 void LAssassinProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midi)
+{
+    processInternal(buffer, midi, false);
+}
+void LAssassinProcessor::processBlockBypassed(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midi)
+{
+    processInternal(buffer, midi, true);
+}
+void LAssassinProcessor::processInternal(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midi,
+                                         bool hostBypassed)
 {
     juce::ScopedNoDenormals noDenormals;
     midi.clear();
@@ -111,6 +123,13 @@ void LAssassinProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Mi
         buffer.clear();
         return;
     }
+    const float hostTarget = hostBypassed ? 0.f : 1.f;
+    if (firstBlock)
+    {
+        hostWet.setCurrentAndTargetValue(hostTarget);
+        firstBlock = false;
+    }
+    hostWet.setTargetValue(hostTarget);
     const auto v = snapshot();
     x2.targets(v);
     x4.targets(v);
@@ -152,7 +171,8 @@ void LAssassinProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Mi
         }
         for (int i = 0; i < n; ++i)
         {
-            const float outputGain = dbGain(global[1].getNextValue()), blend = global[2].getNextValue();
+            const float outputGain = dbGain(global[1].getNextValue()),
+                        blend = global[2].getNextValue() * hostWet.getNextValue();
             const float ag = global[3].getNextValue(), osBlend = global[4].getNextValue();
             float wet[2], dry[2];
             for (int c = 0; c < 2; ++c)
@@ -178,9 +198,9 @@ void LAssassinProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Mi
             }
         }
     }
-    laGR.store(la, std::memory_order_relaxed);
-    fetGR.store(fet, std::memory_order_relaxed);
-    totalGR.store(total, std::memory_order_relaxed);
+    laGR.store(la * hostWet.getCurrentValue(), std::memory_order_relaxed);
+    fetGR.store(fet * hostWet.getCurrentValue(), std::memory_order_relaxed);
+    totalGR.store(total * hostWet.getCurrentValue(), std::memory_order_relaxed);
     inputDb.store(gainDb(im), std::memory_order_relaxed);
     outputDb.store(gainDb(om), std::memory_order_relaxed);
 }

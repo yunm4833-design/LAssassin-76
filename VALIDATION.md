@@ -88,3 +88,7 @@ Start 2: processor_integration
 ## 0.3.0 local audit checks
 
 Linux model, processor integration and UI binding tests: 3/3 pass (4.81 s). Added high-rate long-release agreement, 10 ms attack, Output-isolation from FET feedback, and invalid-audio/parameter recovery checks. CI native builds are the release gate. See Documentation/MODEL-STATUS.md.
+
+## 0.3.0 physical-stage / bypass extension
+
+Adapted MIT JFET/Jiles-Atherton stages. Quiet-signal root precision, passive cell branch and magnetic insertion-energy checks added. Host bypass now preserves 61-sample OS latency via the shared dry path, with a startup-bypass impulse regression. All local model/integration/editor gates passed after the adaptation. Source revision and license notices are bundled.

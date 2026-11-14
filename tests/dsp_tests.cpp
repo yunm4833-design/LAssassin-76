@@ -30,6 +30,30 @@ int main()
 {
     try
     {
+        const float quiet = JfetCell::process(1.e-12f, 6.f, 0.f);
+        check(std::abs(quiet / 1.e-12f - dbGain(-6.f)) < 1.e-5f, "JFET root lost quiet signal precision");
+        for (float reduction : {0.f, 6.f, 20.f, 60.f})
+            for (float value : {-.8f, -.01f, .01f, .8f})
+            {
+                const float y = JfetCell::process(value, reduction, 1.f);
+                check(std::isfinite(y) && std::abs(y) <= std::abs(value) + 1.e-6f,
+                      "JFET divider became active or unstable");
+            }
+        for (double sr : {44100., 192000., 768000.})
+        {
+            MagneticTransformer transformer;
+            transformer.prepare(sr);
+            double incoming = 0, outgoing = 0;
+            for (int i = 0; i < int(sr * .2); ++i)
+            {
+                const float x = float(.2 * std::sin(2 * pi * 50 * i / sr));
+                const float y = transformer.process(x);
+                check(std::isfinite(y), "magnetic state diverged");
+                incoming += x * x;
+                outgoing += y * y;
+            }
+            check(outgoing <= incoming * 1.02, "magnetic stage introduced hidden level gain");
+        }
         check(opticalTail(8) > opticalTail(.1) * 1.15f, "T4 memory must lengthen recovery");
         const float tailReference = opticalTail(2, 44100);
         for (double sr : {96000., 192000., 768000.})
@@ -92,6 +116,85 @@ int main()
             check(la.gr[0] >= 0 && fet.gr[0] > 0, "GR must be nonnegative");
             check(std::abs(fet.gr[0] - fet.gr[1]) < .001f, "linked channels must share GR");
         }
+        // Hardware-style control behavior, measured at the model output rather than UI state.
+        float ratioGR[4]{};
+        constexpr float ratios[]{4, 8, 12, 20};
+        for (size_t k = 0; k < 4; ++k)
+        {
+            FETCompressor unit;
+            unit.prepare(96000);
+            FETSettings settings;
+            settings.ratio = ratios[k];
+            settings.hpf = 0;
+            for (int i = 0; i < 24000; ++i)
+            {
+                float l = float(.3 * std::sin(2 * pi * 997 * i / 96000.)), r = l;
+                unit.process(l, r, settings);
+            }
+            ratioGR[k] = unit.gr[0];
+        }
+        for (size_t k = 1; k < 4; ++k)
+            check(ratioGR[k] > ratioGR[k - 1], "FET ratio buttons must increase steady GR");
+        float transientGR[2]{};
+        for (int fast = 0; fast < 2; ++fast)
+        {
+            FETCompressor unit;
+            unit.prepare(192000);
+            FETSettings settings;
+            settings.hpf = 0;
+            settings.attack = fast ? 7.f : 1.f;
+            for (int i = 0; i < 40; ++i)
+            {
+                float l = .4f, r = l;
+                unit.process(l, r, settings);
+            }
+            transientGR[fast] = unit.gr[0];
+        }
+        check(transientGR[1] > transientGR[0] + 1, "FET Attack 7 must catch transients faster than 1");
+        float recovery[2]{};
+        for (int fast = 0; fast < 2; ++fast)
+        {
+            FETCompressor unit;
+            unit.prepare(96000);
+            FETSettings settings;
+            settings.hpf = 0;
+            settings.release = fast ? 7.f : 1.f;
+            for (int i = 0; i < 24000; ++i)
+            {
+                float l = float(.3 * std::sin(2 * pi * 997 * i / 96000.)), r = l;
+                unit.process(l, r, settings);
+            }
+            const float initial = unit.gr[0];
+            for (int i = 0; i < 9600; ++i)
+            {
+                float l = 0, r = 0;
+                unit.process(l, r, settings);
+            }
+            recovery[fast] = unit.gr[0] / initial;
+        }
+        check(recovery[1] < recovery[0] * .5f, "FET Release 7 must recover faster than 1");
+        auto opticalAmount = [](float limit, float hpf, float hf, double hz)
+        {
+            OpticalCompressor unit;
+            unit.prepare(96000);
+            LASettings settings;
+            settings.peak = 50;
+            settings.limit = limit;
+            settings.hpf = hpf;
+            settings.hf = hf;
+            for (int i = 0; i < 48000; ++i)
+            {
+                float l = float(.3 * std::sin(2 * pi * hz * i / 96000.)), r = l;
+                unit.process(l, r, settings);
+            }
+            return unit.gr[0];
+        };
+        check(opticalAmount(1, 0, 0, 997) > opticalAmount(0, 0, 0, 997) + 2,
+              "LA Limit must exceed Compress GR");
+        check(opticalAmount(0, 0, 1, 8000) > opticalAmount(0, 0, 0, 8000) + 2,
+              "HF Emphasis must increase high-frequency triggering");
+        check(opticalAmount(0, 150, 0, 30) < opticalAmount(0, 0, 0, 30) - 2,
+              "Sidechain HPF must reduce bass triggering");
         float result[2]{};
         for (int drive = 0; drive < 2; ++drive)
         {

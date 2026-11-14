@@ -7,3 +7,5 @@ LAssassin-76 project code is distributed under AGPL-3.0-or-later. See LICENSE.
 - Cinzel Decorative Bold and Zilla Slab Bold: SIL OFL 1.1; see Assets/Fonts.
 
 Corresponding project source, build scripts and release tags: https://github.com/yunm4833-design/LAssassin-76 . Each binary release links to its matching source tag; the exact JUCE dependency remains available at the pinned source URL above. No Windows SDK, MSVC CRT development libraries, or Apple SDK files are redistributed in the source repository.
+
+- Paulllux/fetcomp-dsp: MIT, Copyright (c) 2026 Paul Ulrix. Adapted JFET/Jiles-Atherton sections are identified in Source/DSP/PhysicalStages.h; see ThirdParty/fetcomp-dsp/LICENSE and README.md for the exact revision and changes.

@@ -12,3 +12,5 @@ Source and build instructions: https://github.com/yunm4833-design/LAssassin-76 .
 Robustness audit: double-precision/expm1 envelopes, long-release sample-rate regression, nonfinite input/parameter protection, and malformed-channel safety. See Documentation/MODEL-STATUS.md for measured checks and hardware-calibration limits.
 
 Visual status: larger embedded retro typography is included. Pixel-level matching of the original generated concept requires its original PNG asset; the current vector skin remains the development baseline.
+
+Adapted MIT JFET divider and Jiles-Atherton core from Paulllux/fetcomp-dsp, with stable quiet-signal solving and no hidden makeup trim. Host bypass retains oversampling latency. Third-party source decisions and calibration limits are documented in OPEN-SOURCE-MODELS.md / MODEL-STATUS.md.
