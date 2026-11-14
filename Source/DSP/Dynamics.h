@@ -18,6 +18,11 @@ inline float pole(double seconds, double fs)
 {
     return float(std::exp(-1.0 / (seconds * fs)));
 }
+// A direct small step avoids cancellation in 1 - exp(-1/(tau*fs)).
+inline double envelopeStep(double seconds, double fs)
+{
+    return -std::expm1(-1.0 / (seconds * fs));
+}
 inline float knee(float above, float ratio, float width)
 {
     const float slope = 1.f - 1.f / ratio;
@@ -111,21 +116,21 @@ class OpticalCompressor
     {
         Detector detector;
         Colour colour;
-        float fast = 0, slow = 0, memory = 0;
+        double fast = 0, slow = 0, memory = 0;
     };
     std::array<Channel, 2> ch;
     double fs = 48000;
-    float attack = 0, fastRelease = 0, memoryUp = 0, memoryDown = 0;
+    double attack = 0, fastRelease = 0, memoryUp = 0, memoryDown = 0;
 
   public:
     std::array<float, 2> gr{};
     void prepare(double sr)
     {
         fs = sr;
-        attack = pole(.010, fs);
-        fastRelease = pole(.060 / std::log(10.0), fs); // fast branch T90 = 60 ms
-        memoryUp = pole(.5, fs);
-        memoryDown = pole(5, fs);
+        attack = envelopeStep(.010, fs);
+        fastRelease = envelopeStep(.060 / std::log(10.0), fs); // fast branch T90 = 60 ms
+        memoryUp = envelopeStep(.5, fs);
+        memoryDown = envelopeStep(5, fs);
         for (auto &c : ch)
         {
             c = {};
@@ -151,14 +156,14 @@ class OpticalCompressor
                     : std::clamp(knee(gainDb(det) - (-6.f - .54f * p.peak), 3.f + 97.f * p.limit, 6), 0.f,
                                  50.f);
             const float memoryTarget = std::clamp(target / 24.f, 0.f, 1.f);
-            const float ma = memoryTarget > s.memory ? memoryUp : memoryDown;
-            s.memory = memoryTarget + ma * (s.memory - memoryTarget);
-            const float slowRelease = pole(1.0 + 14.0 * s.memory, fs);
-            const float fa = target > s.fast ? attack : fastRelease;
-            const float sa = target > s.slow ? attack : slowRelease;
-            s.fast = target + fa * (s.fast - target);
-            s.slow = target + sa * (s.slow - target);
-            gr[c] = .5f * (s.fast + s.slow);
+            const double ma = memoryTarget > s.memory ? memoryUp : memoryDown;
+            s.memory += ma * (memoryTarget - s.memory);
+            const double slowRelease = envelopeStep(1.0 + 14.0 * s.memory, fs);
+            const double fa = target > s.fast ? attack : fastRelease;
+            const double sa = target > s.slow ? attack : slowRelease;
+            s.fast += fa * (target - s.fast);
+            s.slow += sa * (target - s.slow);
+            gr[c] = float(.5 * (s.fast + s.slow));
             x[c] = s.colour.tick(x[c] * dbGain(p.gain - gr[c]), 1.05f, .12f);
         }
         l = x[0];
@@ -175,7 +180,8 @@ class FETCompressor
     {
         Detector detector;
         Colour inputColour, outputColour;
-        float feedback = 0, reduction = 0;
+        float feedback = 0;
+        double reduction = 0;
         DCBlock fetDC;
     };
     std::array<Channel, 2> ch;
@@ -199,9 +205,10 @@ class FETCompressor
     void process(float &l, float &r, const FETSettings &p)
     {
         float x[2]{l, r}, det[2];
+        const float inputGain = dbGain(p.input), outputGain = dbGain(p.output);
         for (size_t c = 0; c < 2; ++c)
         {
-            x[c] = ch[c].inputColour.tick(x[c] * dbGain(p.input), .75f, .025f);
+            x[c] = ch[c].inputColour.tick(x[c] * inputGain, .75f, .025f);
             det[c] = ch[c].detector.tick(ch[c].feedback, p.hpf, 0);
         }
         const float linked = std::max(det[0], det[1]);
@@ -219,22 +226,22 @@ class FETCompressor
             const float target = std::clamp(control, 0.f, 60.f);
             const double atk = attack * (1. + 2.5 * p.all);
             const double rel =
-                release * (1. + .65 * std::clamp(s.reduction / 24.f, 0.f, 1.f)) * (1. - .35 * p.all);
-            const float a = pole(target > s.reduction ? atk : rel, fs);
+                release * (1. + .65 * std::clamp(float(s.reduction) / 24.f, 0.f, 1.f)) * (1. - .35 * p.all);
+            const double delta = envelopeStep(target > s.reduction ? atk : rel, fs);
             // Normalize by the local closed-loop slope. A naive explicit update
             // becomes unstable at 20us with high ratios and a one-sample feedback tap.
             const float width = 2.f + 2.f * p.all;
             const float localSlope = (ratio - 1.f) * std::clamp((over + width * .5f) / width, 0.f, 1.f);
-            const float step = (1.f - a) / (1.f + localSlope);
+            const double step = delta / (1.0 + localSlope);
             s.reduction += step * (target - s.reduction);
-            gr[c] = s.reduction;
-            float y = x[c] * dbGain(-s.reduction);
+            gr[c] = float(s.reduction);
+            float y = x[c] * dbGain(-float(s.reduction));
             s.feedback = y; // tap before makeup/output transformer; one OS sample causal delay
-            const float depth = std::clamp(s.reduction / 24.f, 0.f, 1.f);
+            const float depth = std::clamp(float(s.reduction) / 24.f, 0.f, 1.f);
             const float drive = .65f + 1.6f * depth + 2.0f * p.all;
             const float bias = .015f + .065f * depth + .08f * p.all;
             y = s.fetDC.tick(asymmetric(y, drive, bias));
-            x[c] = s.outputColour.tick(y * dbGain(p.output), .75f, .025f);
+            x[c] = s.outputColour.tick(y * outputGain, .75f, .025f);
         }
         l = x[0];
         r = x[1];

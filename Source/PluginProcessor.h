@@ -32,6 +32,7 @@ class LAssassinProcessor final : public juce::AudioProcessor
   private:
     assassin::Values snapshot() const;
     std::array<std::atomic<float> *, assassin::count> raw{};
+    assassin::Values minimum{}, maximum{}, defaults{};
     assassin::Engine x2{1}, x4{2};
     std::array<assassin::Delay, 2> dryDelay;
     juce::AudioBuffer<float> work;

@@ -51,14 +51,23 @@ LAssassinProcessor::LAssassinProcessor()
 {
     for (size_t i = 0; i < count; ++i)
         if (i != allMode)
+        {
             raw[i] = apvts.getRawParameterValue(ids[i]);
+            const auto *parameter = apvts.getParameter(ids[i]);
+            minimum[i] = parameter->getNormalisableRange().start;
+            maximum[i] = parameter->getNormalisableRange().end;
+            defaults[i] = parameter->convertFrom0to1(parameter->getDefaultValue());
+        }
 }
 Values LAssassinProcessor::snapshot() const
 {
     Values v{};
     for (size_t i = 0; i < count; ++i)
         if (raw[i])
-            v[i] = raw[i]->load(std::memory_order_relaxed);
+        {
+            const float value = raw[i]->load(std::memory_order_relaxed);
+            v[i] = std::isfinite(value) ? std::clamp(value, minimum[i], maximum[i]) : defaults[i];
+        }
     const int index = std::clamp(int(v[ratio]), 0, 4);
     constexpr float ratios[]{4, 8, 12, 20, 35};
     v[ratio] = ratios[index];
@@ -97,6 +106,11 @@ void LAssassinProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Mi
 {
     juce::ScopedNoDenormals noDenormals;
     midi.clear();
+    if (buffer.getNumChannels() != 2)
+    {
+        buffer.clear();
+        return;
+    }
     const auto v = snapshot();
     x2.targets(v);
     x4.targets(v);
@@ -112,7 +126,15 @@ void LAssassinProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Mi
         for (int i = 0; i < n; ++i)
         {
             const float g = dbGain(global[0].getNextValue());
-            const float l = buffer.getSample(0, offset + i), r = buffer.getSample(1, offset + i);
+            auto finiteInput = [](float sample)
+            {
+                // Limit only pathological >+36 dBFS inputs; preserve ordinary float headroom.
+                return std::isfinite(sample) ? std::clamp(sample, -64.f, 64.f) : 0.f;
+            };
+            const float l = finiteInput(buffer.getSample(0, offset + i));
+            const float r = finiteInput(buffer.getSample(1, offset + i));
+            buffer.setSample(0, offset + i, l);
+            buffer.setSample(1, offset + i, r);
             im = std::max({im, std::abs(l), std::abs(r)});
             work.setSample(0, i, l * g);
             work.setSample(1, i, r * g);

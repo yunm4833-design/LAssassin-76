@@ -35,8 +35,12 @@ juce_add_binary_data(LAssassinFonts NAMESPACE LAssassinFonts HEADER_NAME LAssass
 target_sources(LAssassin76 PRIVATE Source/PluginProcessor.cpp Source/PluginEditor.cpp)
 target_link_libraries(LAssassin76 PRIVATE LAssassinFonts)
 if(WIN32)
-    configure_file(Source/Windows/manifest.rc.in "${CMAKE_CURRENT_BINARY_DIR}/LAssassin76-manifest.rc" @ONLY)
-    target_sources(LAssassin76_VST3 PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/LAssassin76-manifest.rc")
+    # Native MSVC embeds the pragma-specified v6 dependency automatically.
+    # Cross builds lack mt.exe and must carry an explicit DLL manifest resource.
+    if(CMAKE_CROSSCOMPILING)
+        configure_file(Source/Windows/manifest.rc.in "${CMAKE_CURRENT_BINARY_DIR}/LAssassin76-manifest.rc" @ONLY)
+        target_sources(LAssassin76_VST3 PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/LAssassin76-manifest.rc")
+    endif()
     if(MSVC OR CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
         # Scanners may lack a Common Controls v6 activation context. Native dialogs
         # must not make COMCTL32 ordinal 345 a mandatory LoadLibrary dependency.

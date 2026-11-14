@@ -43,7 +43,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           for bundle in "build/LAssassin76_artefacts/Release/VST3/LAssassin-76.vst3" "build/LAssassin76_artefacts/Release/AU/LAssassin-76.component"; do
-            lipo -verify_arch arm64 x86_64 "$bundle/Contents/MacOS/LAssassin-76"
+            lipo "$bundle/Contents/MacOS/LAssassin-76" -verify_arch arm64 x86_64
             codesign --force --deep --sign - "$bundle"
             codesign --verify --deep --strict "$bundle"
           done

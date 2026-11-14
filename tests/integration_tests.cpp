@@ -1,6 +1,7 @@
 #include "PluginProcessor.h"
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 // Catch C++ heap allocations on this thread during processBlock (not OS malloc/locks).
 static thread_local bool guard = false;
@@ -103,11 +104,40 @@ int main()
                 check(std::abs(p.totalGR.load() - p.laGR.load() - p.fetGR.load()) < 1.e-4f,
                       "GR sum mismatch");
             }
+            // Malformed upstream samples and hostile parameter values must not poison IIR history.
+            b.clear();
+            b.setSample(0, 0, std::numeric_limits<float>::quiet_NaN());
+            b.setSample(1, 1, std::numeric_limits<float>::infinity());
+            b.setSample(0, 2, std::numeric_limits<float>::max());
+            p.apvts.getRawParameterValue("ratio")->store(std::numeric_limits<float>::quiet_NaN());
+            p.apvts.getRawParameterValue("attack")->store(1.e20f);
+            guard = true;
+            p.processBlock(b, midi);
+            guard = false;
+            for (int c = 0; c < 2; ++c)
+                for (int i = 0; i < b.getNumSamples(); ++i)
+                    check(std::isfinite(b.getSample(c, i)), "invalid input poisoned processor state");
+            for (int block = 0; block < 8; ++block)
+            {
+                b.clear();
+                guard = true;
+                p.processBlock(b, midi);
+                guard = false;
+            }
+            check(std::isfinite(p.outputDb.load()), "invalid input poisoned later meter values");
+            set(p, "ratio", 0);
+            set(p, "attack", 4);
+            juce::AudioBuffer<float> invalidLayout(1, 16);
+            invalidLayout.clear();
+            guard = true;
+            p.processBlock(invalidLayout, midi);
+            guard = false;
             juce::MemoryBlock state;
             p.getStateInformation(state);
             LAssassinProcessor restored;
             restored.setStateInformation(state.getData(), int(state.getSize()));
-            check(std::abs(restored.apvts.getRawParameterValue("peak")->load() - 80.f) < 1.e-5f, "state restore failed");
+            check(std::abs(restored.apvts.getRawParameterValue("peak")->load() - 80.f) < 1.e-5f,
+                  "state restore failed");
         }
         check(allocations.load() == 0, "C++ heap allocation during processBlock");
         std::cout << "Integration tests passed: latency, block splitting, automation, state, no C++ heap "

@@ -84,3 +84,7 @@ Start 2: processor_integration
 - malloc/对齐分配/系统调用级别的实时安全监测。
 
 本结果证明代码可以在上述环境构建，且所列自动化检查通过，不代表完成商业插件的跨平台认证或模拟硬件校准。
+
+## 0.3.0 local audit checks
+
+Linux model, processor integration and UI binding tests: 3/3 pass (4.81 s). Added high-rate long-release agreement, 10 ms attack, Output-isolation from FET feedback, and invalid-audio/parameter recovery checks. CI native builds are the release gate. See Documentation/MODEL-STATUS.md.
