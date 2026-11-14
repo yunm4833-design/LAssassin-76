@@ -1,0 +1,30 @@
+﻿LAssassin-76 v0.2.0 — Windows x64 VST3 测试版
+
+已加入定制交互界面：象牙白 LA-2A、黑钢 1176、羽毛 VU、五个 Ratio 按钮、红色 All 状态、Order 动画、双级 GR、输入/输出电平和同步衰减条。
+
+安装：
+1. 解压压缩包。
+2. 将整个 LAssassin-76.vst3 文件夹复制到：
+   C:\Program Files\Common Files\VST3\
+   安装完成后的二进制位置应为：
+   C:\Program Files\Common Files\VST3\LAssassin-76.vst3\Contents\x86_64-win\LAssassin-76.vst3
+3. 重启你的 64 位宿主，重新扫描 VST3 插件。
+4. 在立体声轨道或立体声总线上加载 LAssassin-76。
+
+不要只复制最内层的二进制文件。此版只声明立体声输入/输出；部分宿主的单声道轨道可能不会显示它。
+
+操作：
+- 旋钮上下拖动；双击复位；数值框支持键盘输入。
+- Peak Reduction / Gain 属于 LA-2A；Input / Output / Attack / Release / Ratio 属于 1176。
+- Compress/Limit 开关关闭为 Compress，开启为 Limit。
+- 中央 Order 控制串联次序，两级 Bypass 各自独立。
+- 底部包含 In / Out / Mix、Stereo Link、Stereo/Mid-Side、SC HPF、Auto Gain 和 2x/4x。
+- 右上角为起点预设。可拖动宿主窗口边缘等比例缩放。
+
+初次声音测试建议：Mix=100%，Auto Gain 关闭，Ratio=4，从较小的压缩量开始，调整两级 makeup 和全局 Out 匹配响度。
+
+验证范围：
+本版本已完成 Windows x64 交叉编译、PE 格式/导出入口/导入库检查。
+同一源码的 DSP、处理器集成、UI 绑定测试 3/3 通过；附图来自实际 JUCE 编辑器渲染。
+尚未在 Windows DAW 中实测加载与播放，交付用于宿主试音反馈。
+这是原创行为建模原型，尚未完成真实硬件校准。

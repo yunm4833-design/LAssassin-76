@@ -1,0 +1,26 @@
+﻿LAssassin-76 v0.2.1 — Windows x64 VST3
+
+此版修复旧版在 Windows 插件扫描器中“找不到序数 345”的加载问题。
+原因：旧交叉编译包缺少 DLL Common Controls v6 清单，扫描器会解析到不提供该函数的旧 Common Controls。
+修复：嵌入 DLL 清单（资源 ID 2），并延迟加载 COMCTL32，使扫描阶段不再强制解析该序数；另已补齐 moduleinfo.json。
+声音算法、参数 ID 和交互界面保持一致，仅版本标记更新。
+
+替换安装：
+1. 完全退出 Live 和其他正在扫描插件的音频软件。
+2. 删除或移出旧的整个插件文件夹：
+   C:\Program Files\Common Files\VST3\LAssassin-76.vst3
+3. 将本包的整个 LAssassin-76.vst3 文件夹复制到上述位置。
+   不要将新文件夹嵌套到旧文件夹里，也不要仅复制最内层文件。
+4. 打开 Live，在“设置/首选项 > 插件”中按住左 Alt 点击“重新扫描”。
+5. 在立体声轨道或总线上搜索并加载 LAssassin-76。
+
+若仍不能识别：
+解压本压缩包到普通文件夹，双击 Diagnose-LAssassin.cmd。
+它会测试已安装插件的加载/处理，显示具体错误码，并提取 Live 日志中与本插件相关的几行。
+诊断结果保存在 %TEMP%\LAssassin-diagnostic.txt，便于反馈。
+诊断工具不改宿主设置、注册表或插件缓存。
+
+验证：
+- PE 回归检查：x64、DLL Manifest ID 2、Common Controls v6 依赖、无强制 COMCTL32 导入。
+- Windows 二进制在 Wine 10 下实测 LoadLibrary、InitDll、VST3 枚举、音频处理及连接后的 22 个参数枚举通过。
+- Wine 结果不替代真实 Windows / Live 的最终确认。

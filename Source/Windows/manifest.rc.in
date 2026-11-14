@@ -1,0 +1,3 @@
+// RT_MANIFEST=24, ISOLATIONAWARE_MANIFEST_RESOURCE_ID=2 (DLL).
+// Explicit resource embedding also works for cross builds without Microsoft mt.exe.
+2 24 "@CMAKE_CURRENT_SOURCE_DIR@/Source/Windows/LAssassin.manifest"

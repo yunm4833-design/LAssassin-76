@@ -1,0 +1,87 @@
+name: Build and release plugins
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish a prerelease after both platform builds pass
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            platform: windows
+          - os: macos-15
+            platform: macos
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Windows x64
+        if: runner.os == 'Windows'
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DBUILD_TESTING=ON -DLASSASSIN_BUILD_STANDALONE=OFF
+      - name: Configure macOS Universal
+        if: runner.os == 'macOS'
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DBUILD_TESTING=ON -DLASSASSIN_BUILD_STANDALONE=OFF
+      - name: Build
+        run: cmake --build build --config Release --parallel 2
+      - name: Test models, processor and native plugin loading
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Verify Windows manifest and scanner regression
+        if: runner.os == 'Windows'
+        run: python tests/check_windows_bundle.py "build/LAssassin76_artefacts/Release/VST3/LAssassin-76.vst3/Contents/x86_64-win/LAssassin-76.vst3"
+      - name: Verify Universal binaries and ad-hoc sign bundles
+        if: runner.os == 'macOS'
+        run: |
+          for bundle in "build/LAssassin76_artefacts/Release/VST3/LAssassin-76.vst3" "build/LAssassin76_artefacts/Release/AU/LAssassin-76.component"; do
+            lipo -verify_arch arm64 x86_64 "$bundle/Contents/MacOS/LAssassin-76"
+            codesign --force --deep --sign - "$bundle"
+            codesign --verify --deep --strict "$bundle"
+          done
+      - name: Validate Audio Unit
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p "$HOME/Library/Audio/Plug-Ins/Components"
+          cp -R "build/LAssassin76_artefacts/Release/AU/LAssassin-76.component" "$HOME/Library/Audio/Plug-Ins/Components/"
+          auval -v aufx La76 LAsn
+      - name: Package
+        run: python scripts/package_release.py --platform ${{ matrix.platform }} --artefacts build/LAssassin76_artefacts/Release --out dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LAssassin-76-${{ matrix.platform }}
+          path: |
+            dist/*.zip
+            dist/*.sha256
+          if-no-files-found: error
+          retention-days: 14
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish)
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish both platform packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(python scripts/package_release.py --print-version)
+          tag="v$version"
+          if [[ "$GITHUB_REF" == refs/tags/* && "$GITHUB_REF_NAME" != "$tag" ]]; then
+            echo "Tag and CMake version disagree"; exit 1
+          fi
+          gh release create "$tag" dist/*.zip dist/*.sha256 --target "$GITHUB_SHA" --title "LAssassin-76 $version" --notes-file Documentation/RELEASE-NOTES.md --prerelease
