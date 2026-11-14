@@ -1,4 +1,5 @@
 #pragma once
+#include "OpticalMemory.h"
 #include "PhysicalStages.h"
 #include <algorithm>
 #include <array>
@@ -118,26 +119,22 @@ class OpticalCompressor
     {
         Detector detector;
         Colour colour;
-        double fast = 0, slow = 0, memory = 0;
+        OpticalMemory envelope;
     };
     std::array<Channel, 2> ch;
     double fs = 48000;
-    double attack = 0, fastRelease = 0, memoryUp = 0, memoryDown = 0;
 
   public:
     std::array<float, 2> gr{};
     void prepare(double sr)
     {
         fs = sr;
-        attack = envelopeStep(.010, fs);
-        fastRelease = envelopeStep(.060 / std::log(10.0), fs); // fast branch T90 = 60 ms
-        memoryUp = envelopeStep(.5, fs);
-        memoryDown = envelopeStep(5, fs);
         for (auto &c : ch)
         {
             c = {};
             c.detector.prepare(fs);
             c.colour.prepare(fs, 18000);
+            c.envelope.prepare(fs);
         }
         gr = {};
     }
@@ -157,15 +154,7 @@ class OpticalCompressor
                     ? 0.f
                     : std::clamp(knee(gainDb(det) - (-6.f - .54f * p.peak), 3.f + 97.f * p.limit, 6), 0.f,
                                  50.f);
-            const float memoryTarget = std::clamp(target / 24.f, 0.f, 1.f);
-            const double ma = memoryTarget > s.memory ? memoryUp : memoryDown;
-            s.memory += ma * (memoryTarget - s.memory);
-            const double slowRelease = envelopeStep(1.0 + 14.0 * s.memory, fs);
-            const double fa = target > s.fast ? attack : fastRelease;
-            const double sa = target > s.slow ? attack : slowRelease;
-            s.fast += fa * (target - s.fast);
-            s.slow += sa * (target - s.slow);
-            gr[c] = float(.5 * (s.fast + s.slow));
+            gr[c] = s.envelope.process(target);
             x[c] = s.colour.tick(x[c] * dbGain(p.gain - gr[c]), 1.05f, .12f);
         }
         l = x[0];

@@ -14,6 +14,9 @@ class AssassinLookAndFeel final : public juce::LookAndFeel_V4
     void drawButtonText(juce::Graphics &, juce::TextButton &, bool, bool) override;
     void drawToggleButton(juce::Graphics &, juce::ToggleButton &, bool, bool) override;
     void drawComboBox(juce::Graphics &, int, int, bool, int, int, int, int, juce::ComboBox &) override;
+
+  private:
+    juce::Image knobs;
 };
 
 class LAssassinEditor final : public juce::AudioProcessorEditor, private juce::Timer
@@ -28,22 +31,28 @@ class LAssassinEditor final : public juce::AudioProcessorEditor, private juce::T
     struct Dial
     {
         juce::Slider slider;
+        juce::Label value;
         std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attachment;
     };
+    struct OptionsPanel final : juce::Component
+    {
+        void paint(juce::Graphics &) override;
+    };
     void timerCallback() override;
-    void createBackground();
     void drawVu(juce::Graphics &);
     void drawMeters(juce::Graphics &);
     void drawBypass(juce::Graphics &, juce::Rectangle<float>);
-    void put(juce::Component &, int, int, int, int);
+    void updateReadout(size_t);
     LAssassinProcessor &owner;
     AssassinLookAndFeel theme;
     juce::Component surface;
+    OptionsPanel options;
     juce::TooltipWindow tooltips{this, 600};
     std::array<Dial, 10> dials;
-    juce::TextButton laBypass{"BYPASS"}, fetBypass{"BYPASS"}, order{"1176\nLA-2A"};
-    juce::ToggleButton limit{"COMPRESS / LIMIT"}, hf{"HF EMPHASIS"}, link{"STEREO LINK"},
-        automatic{"AUTO GAIN"};
+    juce::TextButton laBypass{"ON"}, fetBypass{"ON"}, globalBypass{"BYPASS"}, setup{"SETUP"};
+    juce::ToggleButton order, limit, hf, link{"STEREO LINK"}, automatic{"AUTO GAIN"};
+    juce::TextButton orderForward{juce::String::fromUTF8("1176 → LA-2A")},
+        orderReverse{juce::String::fromUTF8("LA-2A → 1176")};
     std::array<juce::TextButton, 5> ratios;
     juce::ComboBox presets, mode, oversampling;
     std::vector<std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>> buttons;

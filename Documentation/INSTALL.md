@@ -20,9 +20,14 @@ For broadly distributed production builds, Developer ID signing and notarization
 
 ## Controls
 
-Drag knobs vertically, double-click to reset, or type into a value box.
+Drag knobs vertically; double-click a knob to reset, or double-click its value box to type a value.
+SETUP opens presets, Link, Stereo/Mid-Side, Auto Gain, oversampling and sidechain HPF.
+LA Gain displays 0–100; its host parameter stays 0–40 dB (display value × 0.4).
+Top BYPASS is global; each stage has its own ON/OFF button.
 The embedded Cinzel Decorative Bold / Zilla Slab Bold fonts are shared across both platforms.
-Stereo-only I/O; the DSP is an original behavior model awaiting hardware calibration.
+Stereo-only I/O; the DSP combines original and attributed open-source behavior models awaiting hardware calibration.
+0.4.0 changes optical recovery; existing parameter IDs and units remain compatible,
+but audio renders may differ from 0.3.0. Compare on a copy of a saved session.
 
 ## License and source
 

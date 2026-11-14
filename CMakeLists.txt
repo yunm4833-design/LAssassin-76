@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(LAssassin76 VERSION 0.3.0 LANGUAGES C CXX)
+project(LAssassin76 VERSION 0.4.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(JUCE_PATH "" CACHE PATH "Path to a JUCE 8 checkout (optional)")
@@ -32,8 +32,10 @@ juce_add_plugin(LAssassin76 COMPANY_NAME "Independent Audio" BUNDLE_ID "audio.in
     VST3_AUTO_MANIFEST ${lassassin_manifest})
 juce_add_binary_data(LAssassinFonts NAMESPACE LAssassinFonts HEADER_NAME LAssassinFonts.h
     SOURCES Assets/Fonts/CinzelDecorative-Bold.ttf Assets/Fonts/ZillaSlab-Bold.ttf)
+juce_add_binary_data(LAssassinSkin NAMESPACE LAssassinSkin HEADER_NAME LAssassinSkin.h
+    SOURCES Assets/Skin/Backplate.png Assets/Skin/Knobs.png)
 target_sources(LAssassin76 PRIVATE Source/PluginProcessor.cpp Source/PluginEditor.cpp)
-target_link_libraries(LAssassin76 PRIVATE LAssassinFonts)
+target_link_libraries(LAssassin76 PRIVATE LAssassinFonts LAssassinSkin)
 if(WIN32)
     # Native MSVC embeds the pragma-specified v6 dependency automatically.
     # Cross builds lack mt.exe and must carry an explicit DLL manifest resource.

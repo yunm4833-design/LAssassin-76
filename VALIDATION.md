@@ -92,3 +92,27 @@ Linux model, processor integration and UI binding tests: 3/3 pass (4.81 s). Adde
 ## 0.3.0 physical-stage / bypass extension
 
 Adapted MIT JFET/Jiles-Atherton stages. Quiet-signal root precision, passive cell branch and magnetic insertion-energy checks added. Host bypass now preserves 61-sample OS latency via the shared dry path, with a startup-bypass impulse regression. All local model/integration/editor gates passed after the adaptation. Source revision and license notices are bundled.
+
+## 0.4.0 local release candidate (2026-11-14)
+
+- Linux Release compiled without project compiler warnings; all three CTest
+  suites pass: DSP models, processor integration, editor bindings.
+- New OpticalMemory checks: about half the GR released after 60 ms; gradual LDR
+  charge/cool; bounded 1–15 s slow branch; short-transient heat rejection;
+  reset/nonfinite safety. Existing high-rate and history checks continue to pass.
+- For the defined 0.5 DC / PR70 test, GR remaining after 1 s silence was 8.30243 dB
+  following a 0.1 s hold and 11.6563 dB following an 8 s hold. These are algorithm
+  regression values, not measured LA-2A hardware data.
+- UI global bypass produces the same reported delay-aligned dry impulse as host
+  bypass, survives save/load, and defaults off when restoring pre-0.4 sessions.
+- Numeric Gain entry maps the reference faceplate's 38 to the existing +15.2 dB
+  parameter. Directional order controls, parameter automation, setup visibility,
+  presets and proportional resize are checked.
+- UI-preview.png, UI-native-preview.png and UI-setup-preview.png are rendered
+  from the actual JUCE editor with a 997 Hz test stimulus, not a design mockup.
+  Visual inspection caught and fixed UTF-8 minus rendering and the nonuniform
+  synchronization scale mapping. No physical mouse/DAW session is simulated by
+  the binding test.
+- Windows/macOS packages are gated by native CI build, CTest, Windows DLL probe
+  and ordinal-345 regression, Universal architecture/signature checks and auval.
+  See the v0.4.0 tag run for platform-specific outcomes.

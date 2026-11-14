@@ -38,6 +38,8 @@ for filename in ['LICENSE', 'THIRD_PARTY_NOTICES.md', 'README.md']:
 shutil.copytree(ROOT / 'Assets/Fonts', stage / 'Font-licenses', ignore=shutil.ignore_patterns('*.ttf'))
 shutil.copytree(ROOT / 'ThirdParty', stage / 'ThirdParty')
 shutil.copy2(ROOT / 'Documentation/INSTALL.md', stage / 'INSTALL.md')
+shutil.copy2(ROOT / 'Documentation/RELEASE-NOTES.md', stage / 'RELEASE-NOTES.md')
+shutil.copy2(ROOT / 'Assets/Skin/README.md', stage / 'SKIN-NOTICES.md')
 (stage / 'SOURCE.txt').write_text(
     f'Corresponding source for {VERSION}:\nhttps://github.com/yunm4833-design/LAssassin-76/tree/v{VERSION}\n'
     'JUCE 8.0.6: https://github.com/juce-framework/JUCE/tree/8.0.6\n', encoding='utf-8')

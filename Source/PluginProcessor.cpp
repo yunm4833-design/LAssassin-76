@@ -41,6 +41,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout LAssassinProcessor::layout()
     f("hpf", "Sidechain HPF (Hz)", 0, 300, 80);
     b("auto", "Auto Gain", false);
     c("os", "Oversampling", {"2x", "4x"}, 0);
+    b("bypass", "Bypass", false);
     return p;
 }
 LAssassinProcessor::LAssassinProcessor()
@@ -49,6 +50,7 @@ LAssassinProcessor::LAssassinProcessor()
                          .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
       apvts(*this, nullptr, "LAssassinState", layout())
 {
+    globalBypass = apvts.getRawParameterValue("bypass");
     for (size_t i = 0; i < count; ++i)
         if (i != allMode)
         {
@@ -123,7 +125,8 @@ void LAssassinProcessor::processInternal(juce::AudioBuffer<float> &buffer, juce:
         buffer.clear();
         return;
     }
-    const float hostTarget = hostBypassed ? 0.f : 1.f;
+    const float hostTarget =
+        (hostBypassed || globalBypass->load(std::memory_order_relaxed) > .5f) ? 0.f : 1.f;
     if (firstBlock)
     {
         hostWet.setCurrentAndTargetValue(hostTarget);
@@ -261,6 +264,15 @@ void LAssassinProcessor::setStateInformation(const void *data, int size)
         if (xml->hasTagName(apvts.state.getType()))
         {
             auto tree = juce::ValueTree::fromXml(*xml);
+            // Older sessions predate the explicit global-bypass parameter.
+            // Restore their enabled state even into an already-bypassed instance.
+            if (!tree.getChildWithProperty("id", "bypass").isValid())
+            {
+                juce::ValueTree bypassState("PARAM");
+                bypassState.setProperty("id", "bypass", nullptr);
+                bypassState.setProperty("value", 0.f, nullptr);
+                tree.appendChild(bypassState, nullptr);
+            }
             currentProgram = std::clamp(int(tree.getProperty("program", 0)), 0, 4);
             apvts.replaceState(tree);
         }

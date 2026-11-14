@@ -155,6 +155,39 @@ int main()
                           1.e-5f,
                       "host bypass must retain reported latency");
         }
+        {
+            LAssassinProcessor bypassed;
+            set(bypassed, "bypass", 1);
+            check(bypassed.getBypassParameter() == bypassed.apvts.getParameter("bypass"),
+                  "global UI bypass must be the host bypass parameter");
+            bypassed.prepareToPlay(48000, 64);
+            juce::AudioBuffer<float> impulse(2, 257);
+            impulse.clear();
+            impulse.setSample(0, 0, 1);
+            impulse.setSample(1, 0, 1);
+            juce::MidiBuffer midi;
+            guard = true;
+            bypassed.processBlock(impulse, midi);
+            guard = false;
+            for (int i = 0; i < impulse.getNumSamples(); ++i)
+                check(std::abs(impulse.getSample(0, i) - (i == bypassed.getLatencySamples() ? 1.f : 0.f)) <
+                          1.e-5f,
+                      "UI bypass must produce delay-aligned dry audio");
+            juce::MemoryBlock state;
+            bypassed.getStateInformation(state);
+            LAssassinProcessor restored;
+            restored.setStateInformation(state.getData(), int(state.getSize()));
+            check(restored.apvts.getRawParameterValue("bypass")->load() > .5f,
+                  "global bypass state was not restored");
+            auto legacyTree = bypassed.apvts.copyState();
+            legacyTree.removeChild(legacyTree.getChildWithProperty("id", "bypass"), nullptr);
+            juce::MemoryBlock legacy;
+            auto legacyXml = legacyTree.createXml();
+            juce::AudioProcessor::copyXmlToBinary(*legacyXml, legacy);
+            restored.setStateInformation(legacy.getData(), int(legacy.getSize()));
+            check(restored.apvts.getRawParameterValue("bypass")->load() < .5f,
+                  "older sessions must restore without unintended bypass");
+        }
         check(allocations.load() == 0, "C++ heap allocation during processBlock");
         std::cout << "Integration tests passed: latency, block splitting, automation, state, no C++ heap "
                      "allocations\n";

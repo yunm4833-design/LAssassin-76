@@ -1,5 +1,6 @@
 #include "DSP/Dynamics.h"
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 using namespace assassin;
 static void check(bool b, const char *m)
@@ -53,6 +54,34 @@ int main()
                 outgoing += y * y;
             }
             check(outgoing <= incoming * 1.02, "magnetic stage introduced hidden level gain");
+        }
+        {
+            OpticalMemory envelope;
+            envelope.prepare(48000);
+            for (int i = 0; i < 14400; ++i)
+                envelope.process(18);
+            const auto held = envelope.state();
+            check(held.heat > .1 && held.heat < .4, "LDR charge must accumulate over time");
+            const float start = envelope.process(18);
+            float at60ms = 0;
+            for (int i = 0; i < 2880; ++i)
+                at60ms = envelope.process(0);
+            check(at60ms / start > .50f && at60ms / start < .58f,
+                  "T4 must release approximately half the GR in 60 ms");
+            const double warm = envelope.state().heat;
+            for (int i = 0; i < 48000; ++i)
+                envelope.process(0);
+            check(envelope.state().heat < warm && envelope.state().heat > .01,
+                  "LDR must cool gradually after the fast envelope releases");
+            check(envelope.state().slowSeconds >= 1 && envelope.state().slowSeconds <= 15,
+                  "T4 slow time constant escaped bounds");
+            envelope.reset();
+            envelope.process(50);
+            check(envelope.state().heat < .00001, "One transient must not instantly heat the LDR");
+            check(std::isfinite(envelope.process(std::numeric_limits<float>::quiet_NaN())),
+                  "Optical memory must tolerate invalid control input");
+            envelope.reset();
+            check(envelope.process(0) == 0, "Optical memory reset retained state");
         }
         check(opticalTail(8) > opticalTail(.1) * 1.15f, "T4 memory must lengthen recovery");
         const float tailReference = opticalTail(2, 44100);

@@ -15,6 +15,10 @@ class LAssassinProcessor final : public juce::AudioProcessor
     bool isBusesLayoutSupported(const BusesLayout &) const override;
     juce::AudioProcessorEditor *createEditor() override;
     bool hasEditor() const override { return true; }
+    juce::AudioProcessorParameter *getBypassParameter() const override
+    {
+        return apvts.getParameter("bypass");
+    }
     const juce::String getName() const override { return "LAssassin-76"; }
     bool acceptsMidi() const override { return false; }
     bool producesMidi() const override { return false; }
@@ -35,6 +39,7 @@ class LAssassinProcessor final : public juce::AudioProcessor
     void processInternal(juce::AudioBuffer<float> &, juce::MidiBuffer &, bool hostBypassed);
     assassin::Values snapshot() const;
     std::array<std::atomic<float> *, assassin::count> raw{};
+    std::atomic<float> *globalBypass = nullptr;
     assassin::Values minimum{}, maximum{}, defaults{};
     assassin::Engine x2{1}, x4{2};
     std::array<assassin::Delay, 2> dryDelay;
