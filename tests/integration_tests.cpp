@@ -79,6 +79,10 @@ int main()
                     set(p, "os", 1);
                 if (block == 60)
                     set(p, "ms", 1);
+                if (block == 70)
+                    set(p, "laCalibration", 0);
+                if (block == 75)
+                    set(p, "laCalibration", 1);
                 if (block == 80)
                     set(p, "link", 0);
                 if (block == 90)
@@ -138,6 +142,8 @@ int main()
             restored.setStateInformation(state.getData(), int(state.getSize()));
             check(std::abs(restored.apvts.getRawParameterValue("peak")->load() - 80.f) < 1.e-5f,
                   "state restore failed");
+            check(restored.apvts.getRawParameterValue("laCalibration")->load() > .5f,
+                  "new calibration mode must survive save/load");
         }
         {
             LAssassinProcessor bypassed;
@@ -181,12 +187,15 @@ int main()
                   "global bypass state was not restored");
             auto legacyTree = bypassed.apvts.copyState();
             legacyTree.removeChild(legacyTree.getChildWithProperty("id", "bypass"), nullptr);
+            legacyTree.removeChild(legacyTree.getChildWithProperty("id", "laCalibration"), nullptr);
             juce::MemoryBlock legacy;
             auto legacyXml = legacyTree.createXml();
             juce::AudioProcessor::copyXmlToBinary(*legacyXml, legacy);
             restored.setStateInformation(legacy.getData(), int(legacy.getSize()));
             check(restored.apvts.getRawParameterValue("bypass")->load() < .5f,
                   "older sessions must restore without unintended bypass");
+            check(restored.apvts.getRawParameterValue("laCalibration")->load() < .5f,
+                  "older sessions must retain the original optical mapping");
         }
         check(allocations.load() == 0, "C++ heap allocation during processBlock");
         std::cout << "Integration tests passed: latency, block splitting, automation, state, no C++ heap "

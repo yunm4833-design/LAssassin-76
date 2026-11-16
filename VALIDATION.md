@@ -116,3 +116,21 @@ Adapted MIT JFET/Jiles-Atherton stages. Quiet-signal root precision, passive cel
 - Windows/macOS packages are gated by native CI build, CTest, Windows DLL probe
   and ordinal-345 regression, Universal architecture/signature checks and auval.
   See the v0.4.0 tag run for platform-specific outcomes.
+
+## 0.5.0 SignalTrain mapping integration (2026-11-16)
+
+- Three CTest suites pass: models, processor integration, editor bindings.
+- Sparse mapping is monotone/finite over the full panel range; PR=0 has no
+  reference trim. At all three measured anchors, integrated output matches the
+  offline effective-PR + post-colour-trim placement and GR excludes reference trim.
+- New mode is smoothed in the oversampled domain and tested during automation;
+  new-state roundtrip preserves it, and old states migrate to the original mode.
+- Actual editor snapshots show the SETUP toggle without overlapping other controls.
+- Native 44.1 kHz data is rendered through the production optical core and JUCE
+  FIR at 2x/4x, with 90 s preconditioning and a separate 60 s evaluation window.
+  All three measured operating points improve envelope error. Full measured
+  values and protocol limits: Documentation/Calibration/INTEGRATION-0.5.0.md.
+- No constants in the 1176 DSP are changed; no external plugin comparison is
+  used by this release. No process-time allocations or locks were introduced.
+- Windows load/processing/manifest regression and macOS Universal/AU validation
+  are required by the v0.5.0 tag release workflow.

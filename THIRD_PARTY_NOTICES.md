@@ -12,3 +12,5 @@ Corresponding project source, build scripts and release tags: https://github.com
 
 - Jun-Murakami/ZeroComp: AGPL-3.0-or-later, Copyright (C) 2026 Jun Murakami. Adapted LDR heat architecture is identified in Source/DSP/OpticalMemory.h; see ThirdParty/ZeroComp/LICENSE and README.md for source revision and modifications.
 - Photorealistic UI backplate and knob atlas: AI-assisted assets derived from the user-supplied reference. Included under the project license to the extent applicable; see Assets/Skin/README.md.
+
+- SignalTrain LA2A Dataset 1.1: Benjamin Colburn and Scott Hawley, https://doi.org/10.5281/zenodo.3824876 . Record license: CC BY 4.0, https://creativecommons.org/licenses/by/4.0/ . Version 0.5.0 derives three optical operating-point mappings from paired recordings; fitted parameters and engineering interpolation differ from the source data. No source audio is redistributed. Protocol, file hashes and results are in Documentation/Calibration.

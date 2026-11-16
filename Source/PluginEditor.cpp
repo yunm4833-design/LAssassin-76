@@ -225,7 +225,7 @@ void LAssassinEditor::OptionsPanel::paint(juce::Graphics &g)
     text(g, "CHANNEL MODE", {310, 12, 205, 27}, 22, brass);
     text(g, "OVERSAMPLING", {540, 12, 210, 27}, 22, brass);
     text(g, "SIDECHAIN HPF", {20, 106, 230, 30}, 22, brass);
-    text(g, "LAssassin-76  |  0.4.0", {680, 150, 270, 28}, 20, ivory);
+    text(g, "LAssassin-76  |  0.5.0", {680, 150, 270, 28}, 20, ivory);
 }
 LAssassinEditor::LAssassinEditor(LAssassinProcessor &p) : AudioProcessorEditor(p), owner(p)
 {
@@ -317,6 +317,9 @@ LAssassinEditor::LAssassinEditor(LAssassinProcessor &p) : AudioProcessorEditor(p
     bindButton(hf, "hf");
     bindButton(link, "link", true);
     bindButton(automatic, "auto", true);
+    bindButton(calibration, "laCalibration", true);
+    calibration.setTooltip("Measured 2A operating-point mapping with output reference trim. Unmeasured "
+                           "settings are interpolated. Off restores the original mapping.");
     for (auto *b : {&laBypass, &fetBypass, &globalBypass})
         b->getProperties().set("bypass", true);
     laBypass.getProperties().set("fontSize", 18.f);
@@ -454,6 +457,7 @@ void LAssassinEditor::resized()
     for (size_t i = 0; i < ratios.size(); ++i)
         ratios[i].setBounds(1131 + int(i) * 102, 635, 107, 65);
     options.setBounds(448, 92, 988, 194);
+    calibration.setBounds(25, 148, 420, 36);
     presets.setBounds(20, 45, 270, 38);
     mode.setBounds(310, 45, 205, 38);
     oversampling.setBounds(540, 45, 210, 38);

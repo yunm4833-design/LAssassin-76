@@ -26,6 +26,7 @@ enum Param
     hpf,
     autoGain,
     os,
+    laCalibration,
     count
 };
 using Values = std::array<float, count>;
@@ -64,7 +65,7 @@ struct Chain
     }
     void process(float &l, float &r, const Values &v, bool reverse)
     {
-        LASettings lp{v[peak], v[laGain], v[limit], v[hf], v[link], v[hpf]};
+        LASettings lp{v[peak], v[laGain], v[limit], v[hf], v[link], v[hpf], v[laCalibration]};
         FETSettings fp{v[fetIn], v[fetOut], v[attack], v[release], v[ratio], v[allMode], v[link], v[hpf]};
         auto optical = [&]
         {

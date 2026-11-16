@@ -44,7 +44,8 @@ int main(int argc, char **argv)
                   "slider not bound to parameter");
             check(slider->getBounds().getWidth() > 0, "slider has no bounds");
         }
-        for (auto *id : {"laBypass", "fetBypass", "order", "limit", "hf", "link", "auto", "bypass"})
+        for (auto *id :
+             {"laBypass", "fetBypass", "order", "limit", "hf", "link", "auto", "bypass", "laCalibration"})
         {
             auto *button = dynamic_cast<juce::Button *>(find(*editor, id));
             check(button != nullptr, "missing button");

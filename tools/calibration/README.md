@@ -74,3 +74,22 @@ Keep partial downloads separate; never treat a truncated WAV as valid.
 The fixed-gain-only control also derives its trim solely from calibration windows,
 then freezes it on validation windows. It is included to avoid mistaking level
 alignment for improvement in dynamic behavior.
+
+
+## 0.5.0 integration check
+
+The earlier fitting scripts keep their historical protocol. The new sparse
+mapping is implemented in `Source/DSP/OpticalCalibration.h`; `LASettings` still
+defaults to calibration off for direct-core callers, while new plugin instances
+explicitly enable the APVTS parameter. Older saved plugin states migrate to off.
+
+Build the optional renderer with `-DLASSASSIN_CALIBRATION_TOOLS=ON`, then run:
+
+```sh
+python3 tools/calibration/validate_oversampled.py /workspace/signaltrain-data
+```
+
+This uses the actual JUCE FIR oversampler at 2x/4x, 90 seconds of warm-up, then
+60 seconds of held-out audio per measured operating point. It isolates the optical
+stage; full processor routing/state/automation are checked by CTest separately.
+Do not directly compare its shorter-protocol scores with the historical report.

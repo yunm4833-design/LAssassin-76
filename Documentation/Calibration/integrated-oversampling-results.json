@@ -1,0 +1,138 @@
+{
+  "protocol": "90s warm-up at 420-510s; evaluate 510-570s; no refit; isolated production optical stage and JUCE FIR; HPF/HF/Gain=0; integer FIR delay removed",
+  "core_tag": "v0.5.0",
+  "rows": [
+    {
+      "id": "235",
+      "mode": 0,
+      "peak": 65,
+      "oversampling": 2,
+      "calibration": 0,
+      "latency_samples": 49,
+      "envelope_rmse_db": 14.545774566401482,
+      "esr": 0.6715259342503891,
+      "spectral_rmse_db": 13.915740512364104
+    },
+    {
+      "id": "235",
+      "mode": 0,
+      "peak": 65,
+      "oversampling": 2,
+      "calibration": 1,
+      "latency_samples": 49,
+      "envelope_rmse_db": 2.8475587718139037,
+      "esr": 0.10511414509813022,
+      "spectral_rmse_db": 1.35758289969459
+    },
+    {
+      "id": "235",
+      "mode": 0,
+      "peak": 65,
+      "oversampling": 4,
+      "calibration": 0,
+      "latency_samples": 61,
+      "envelope_rmse_db": 14.568149576681279,
+      "esr": 0.6821384155471281,
+      "spectral_rmse_db": 14.041885094887002
+    },
+    {
+      "id": "235",
+      "mode": 0,
+      "peak": 65,
+      "oversampling": 4,
+      "calibration": 1,
+      "latency_samples": 61,
+      "envelope_rmse_db": 2.863021880529808,
+      "esr": 0.149796322545312,
+      "spectral_rmse_db": 1.5151640930867332
+    },
+    {
+      "id": "256",
+      "mode": 1,
+      "peak": 65,
+      "oversampling": 2,
+      "calibration": 0,
+      "latency_samples": 49,
+      "envelope_rmse_db": 25.036230136513037,
+      "esr": 0.8982695737674085,
+      "spectral_rmse_db": 24.469823455939643
+    },
+    {
+      "id": "256",
+      "mode": 1,
+      "peak": 65,
+      "oversampling": 2,
+      "calibration": 1,
+      "latency_samples": 49,
+      "envelope_rmse_db": 3.6046254693022,
+      "esr": 0.1372356887774106,
+      "spectral_rmse_db": 2.3677541239372517
+    },
+    {
+      "id": "256",
+      "mode": 1,
+      "peak": 65,
+      "oversampling": 4,
+      "calibration": 0,
+      "latency_samples": 61,
+      "envelope_rmse_db": 25.057945807812946,
+      "esr": 0.9013722430876769,
+      "spectral_rmse_db": 24.591880422677033
+    },
+    {
+      "id": "256",
+      "mode": 1,
+      "peak": 65,
+      "oversampling": 4,
+      "calibration": 1,
+      "latency_samples": 61,
+      "envelope_rmse_db": 3.624198599820976,
+      "esr": 0.17590566319827525,
+      "spectral_rmse_db": 2.5204171506750743
+    },
+    {
+      "id": "259",
+      "mode": 1,
+      "peak": 80,
+      "oversampling": 2,
+      "calibration": 0,
+      "latency_samples": 49,
+      "envelope_rmse_db": 28.412373661915694,
+      "esr": 0.9325654502245301,
+      "spectral_rmse_db": 26.788483784598256
+    },
+    {
+      "id": "259",
+      "mode": 1,
+      "peak": 80,
+      "oversampling": 2,
+      "calibration": 1,
+      "latency_samples": 49,
+      "envelope_rmse_db": 5.093617495573601,
+      "esr": 0.2510213500841466,
+      "spectral_rmse_db": 2.5787234562679493
+    },
+    {
+      "id": "259",
+      "mode": 1,
+      "peak": 80,
+      "oversampling": 4,
+      "calibration": 0,
+      "latency_samples": 61,
+      "envelope_rmse_db": 28.434321530159398,
+      "esr": 0.9343835297078551,
+      "spectral_rmse_db": 26.910276172316035
+    },
+    {
+      "id": "259",
+      "mode": 1,
+      "peak": 80,
+      "oversampling": 4,
+      "calibration": 1,
+      "latency_samples": 61,
+      "envelope_rmse_db": 5.1106280867066065,
+      "esr": 0.27962520952326786,
+      "spectral_rmse_db": 2.7281517097981824
+    }
+  ]
+}

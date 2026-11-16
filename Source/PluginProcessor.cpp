@@ -3,10 +3,10 @@
 using namespace assassin;
 namespace
 {
-constexpr const char *ids[count] = {"in",     "out",     "mix",   "order",       "laBypass", "peak",
-                                    "laGain", "limit",   "hf",    "fetBypass",   "fetIn",    "fetOut",
-                                    "attack", "release", "ratio", "allInternal", "link",     "ms",
-                                    "hpf",    "auto",    "os"};
+constexpr const char *ids[count] = {"in",     "out",     "mix",   "order",        "laBypass", "peak",
+                                    "laGain", "limit",   "hf",    "fetBypass",    "fetIn",    "fetOut",
+                                    "attack", "release", "ratio", "allInternal",  "link",     "ms",
+                                    "hpf",    "auto",    "os",    "laCalibration"};
 const char *names[5] = {"Default Vocal", "Rap Forward", "Pop Level", "Podcast", "Parallel Edge"};
 } // namespace
 juce::AudioProcessorValueTreeState::ParameterLayout LAssassinProcessor::layout()
@@ -42,6 +42,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout LAssassinProcessor::layout()
     b("auto", "Auto Gain", false);
     c("os", "Oversampling", {"2x", "4x"}, 0);
     b("bypass", "Bypass", false);
+    b("laCalibration", "2A SignalTrain mapping", true);
     return p;
 }
 LAssassinProcessor::LAssassinProcessor()
@@ -241,6 +242,7 @@ void LAssassinProcessor::setCurrentProgram(int index)
     set("ms", 0);
     set("auto", 0);
     set("os", 0);
+    set("laCalibration", 1);
     set("peak", s.peak);
     set("laGain", s.gain);
     set("fetIn", s.in);
@@ -272,6 +274,13 @@ void LAssassinProcessor::setStateInformation(const void *data, int size)
                 bypassState.setProperty("id", "bypass", nullptr);
                 bypassState.setProperty("value", 0.f, nullptr);
                 tree.appendChild(bypassState, nullptr);
+            }
+            if (!tree.getChildWithProperty("id", "laCalibration").isValid())
+            {
+                juce::ValueTree calibrationState("PARAM");
+                calibrationState.setProperty("id", "laCalibration", nullptr);
+                calibrationState.setProperty("value", 0.f, nullptr);
+                tree.appendChild(calibrationState, nullptr);
             }
             currentProgram = std::clamp(int(tree.getProperty("program", 0)), 0, 4);
             apvts.replaceState(tree);

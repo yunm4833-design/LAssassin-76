@@ -50,7 +50,8 @@ class LAssassinEditor final : public juce::AudioProcessorEditor, private juce::T
     juce::TooltipWindow tooltips{this, 600};
     std::array<Dial, 10> dials;
     juce::TextButton laBypass{"ON"}, fetBypass{"ON"}, globalBypass{"BYPASS"}, setup{"SETUP"};
-    juce::ToggleButton order, limit, hf, link{"STEREO LINK"}, automatic{"AUTO GAIN"};
+    juce::ToggleButton order, limit, hf, link{"STEREO LINK"}, automatic{"AUTO GAIN"},
+        calibration{"2A SIGNALTRAIN"};
     juce::TextButton orderForward{juce::String::fromUTF8("1176 → LA-2A")},
         orderReverse{juce::String::fromUTF8("LA-2A → 1176")};
     std::array<juce::TextButton, 5> ratios;

@@ -1,4 +1,5 @@
 #pragma once
+#include "OpticalCalibration.h"
 #include "OpticalMemory.h"
 #include "PhysicalStages.h"
 #include <algorithm>
@@ -111,7 +112,7 @@ struct Detector
 };
 struct LASettings
 {
-    float peak = 35, gain = 0, limit = 0, hf = 0, link = 1, hpf = 80;
+    float peak = 35, gain = 0, limit = 0, hf = 0, link = 1, hpf = 80, calibration = 0;
 };
 class OpticalCompressor
 {
@@ -140,6 +141,8 @@ class OpticalCompressor
     }
     void process(float &l, float &r, const LASettings &p)
     {
+        const auto calibrated = OpticalCalibration::map(p.peak, p.limit, p.calibration);
+        const float referenceGain = dbGain(calibrated.trimDb);
         float x[2]{l, r};
         float levels[2];
         for (size_t c = 0; c < 2; ++c)
@@ -152,10 +155,10 @@ class OpticalCompressor
             const float target =
                 p.peak < .001f
                     ? 0.f
-                    : std::clamp(knee(gainDb(det) - (-6.f - .54f * p.peak), 3.f + 97.f * p.limit, 6), 0.f,
-                                 50.f);
+                    : std::clamp(knee(gainDb(det) - (-6.f - .54f * calibrated.peak), 3.f + 97.f * p.limit, 6),
+                                 0.f, 50.f);
             gr[c] = s.envelope.process(target);
-            x[c] = s.colour.tick(x[c] * dbGain(p.gain - gr[c]), 1.05f, .12f);
+            x[c] = s.colour.tick(x[c] * dbGain(p.gain - gr[c]), 1.05f, .12f) * referenceGain;
         }
         l = x[0];
         r = x[1];

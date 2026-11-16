@@ -32,3 +32,14 @@ but audio renders may differ from 0.3.0. Compare on a copy of a saved session.
 ## License and source
 
 AGPL-3.0-or-later; fonts retain SIL OFL 1.1. Corresponding source is linked in SOURCE.txt.
+
+## 0.5.0 2A SignalTrain mode
+
+SETUP → 2A SIGNALTRAIN is on for new instances; turn it off to compare the original
+mapping. Old sessions without this parameter load with it off, preserving their
+prior sound. Existing parameter IDs and units are unchanged. The mode adjusts
+Peak Reduction's effective drive and adds the fitted output reference trim after
+the colour stage. This changes the level driving the next compressor when 2A is
+first. The three measured settings do not establish accuracy over all controls;
+intermediate/unmeasured settings are interpolated. No reference-comparison
+changes are made to the 1176 stage in this release.

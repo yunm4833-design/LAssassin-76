@@ -1,14 +1,13 @@
-Windows x64 VST3 and macOS Universal VST3/AU testing release.
+LAssassin-76 0.5.0 — SignalTrain optical mapping test release.
 
-- Photorealistic parchment / black-steel skin based on the user's original reference: stitched leather, brass, feather VU, textured knobs, live editable readouts, animated order controls, and glowing blade ratio buttons.
-- SETUP opens presets, Stereo/Mid-Side, Link, Auto Gain, oversampling and sidechain HPF without changing the main reference layout.
-- LA-2A now adapts ZeroComp's AGPL LDR heat architecture: realized envelope drives 1 s charge / 3 s cooling; fixed 10 ms attack, approximately half-release at 60 ms, and a history-dependent 1–15 s slow branch remain.
-- Global BYPASS is saved/automatable and shares the host's latency-aligned smoothed bypass path. Stage bypasses remain independent.
-- LA Gain faceplate reads 0–100 to match the concept; host parameter remains 0–40 dB, so existing automation retains its meaning (38 on the panel = 15.2 dB).
-- Existing MIT JFET/magnetic stages, Windows scanner ordinal-345 regression fix, and native platform validation gates are retained.
+- 2A now includes the measured SignalTrain operating-point mapping and post-colour output reference trim at Compress/65, Limit/65 and Limit/80.
+- New SETUP → 2A SIGNALTRAIN switch: on for new instances, off automatically for saved sessions predating this parameter. Turn off to compare the original mapping.
+- Other knob positions use monotone piecewise interpolation with engineering endpoints; they are not individually hardware-calibrated. Attack, two-part release and heat-memory constants remain as before.
+- Reference trim is part of the serial audio gain structure and correctly drives the following compressor; GR meters show attenuation only. Parameter changes are smoothed.
+- Existing parameter IDs/units, Windows scanner fix, native x64 load validation, macOS Universal VST3/AU packaging and signing checks are retained.
 
-The reference composition/materials are preserved using an edited backplate and reconstructed live widgets; this is not a pixel-identical static screenshot. This release changes optical recovery from 0.3.0; saved parameters are compatible but rendered audio can differ. Hardware sound equivalence is not established.
+The historical offline report and the integrated 2x/4x optical-stage validation have distinct protocols; see Documentation/Calibration. Hardware-equivalence percentages are not claimed. The 1176 DSP is unchanged.
 
-Windows: replace the entire plugin folder, then rescan. macOS: Intel + Apple Silicon, macOS 11+, ad-hoc signed, not Apple-notarized. See included INSTALL.md.
+Windows: replace the whole VST3 bundle, then rescan. macOS Universal supports Intel and Apple Silicon on macOS 11+; testing packages are ad-hoc signed, not Apple-notarized.
 
-Source: https://github.com/yunm4833-design/LAssassin-76/tree/v0.4.0 . Project and adapted ZeroComp section AGPL-3.0-or-later; fetcomp sections MIT; fonts SIL OFL 1.1. Complete attribution and model decisions are included in the source.
+Source: https://github.com/yunm4833-design/LAssassin-76/tree/v0.5.0 . Project/ZeroComp section AGPL-3.0-or-later; fetcomp sections MIT; fonts SIL OFL 1.1. Included notices identify all source adaptations.

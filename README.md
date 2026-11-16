@@ -33,7 +33,7 @@ Windows: use Visual Studio 2022 C++ Desktop tools, `-G "Visual Studio 17 2022" -
 macOS: Xcode command-line tools; add `-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0` for Universal bundles.
 Linux developer dependencies and detailed DSP constants are documented in README.zh-CN.md.
 
-GitHub Actions builds both native platforms. Tags matching the CMake version (`v0.4.0`) or a manual publish dispatch create a prerelease after all build and validation gates pass. Each package includes its matching source tag and license notices.
+GitHub Actions builds both native platforms. Tags matching the CMake version (`v0.5.0`) or a manual publish dispatch create a prerelease after all build and validation gates pass. Each package includes its matching source tag and license notices.
 
 ## Model and validation limits
 
@@ -45,4 +45,15 @@ Project source: **AGPL-3.0-or-later**. JUCE uses its AGPL option. Fonts retain *
 
 ## SignalTrain measurement report
 
-[中文校准报告](Documentation/Calibration/REPORT.zh-CN.md) compares the v0.4.0 optical core against three SignalTrain hardware operating points, with held-out time windows and a fixed-gain control. Offline candidate profiles improve some errors but are not enabled in released binaries. [Reproduction scripts](tools/calibration/README.md).
+[中文校准报告](Documentation/Calibration/REPORT.zh-CN.md) compares the v0.4.0 optical core against three SignalTrain hardware operating points, with held-out time windows and a fixed-gain control. That historical report measures offline candidates. Version 0.5.0 integrates their sparse mapping as a switchable mode; see the integrated validation below. [Reproduction scripts](tools/calibration/README.md).
+
+## 0.5.0 optical mapping
+
+New instances enable **SETUP → 2A SIGNALTRAIN**: sparse measured operating-point
+mapping plus post-colour reference trim. Turning it off restores the original
+mapping. Sessions saved before 0.5.0 automatically load with it off. The three
+measured points are Compress/65, Limit/65 and Limit/80; other settings use an
+engineering interpolation, not a full-range hardware calibration. Reference
+trim is included in the audio gain structure but is not reported as GR.
+
+[0.5.0 integrated 2x/4x validation](Documentation/Calibration/INTEGRATION-0.5.0.md).

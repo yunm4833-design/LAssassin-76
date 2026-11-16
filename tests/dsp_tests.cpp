@@ -31,6 +31,43 @@ int main()
 {
     try
     {
+        for (float mode : {0.f, 1.f})
+        {
+            float last = -1;
+            for (int i = 0; i <= 10000; ++i)
+            {
+                const auto c = OpticalCalibration::map(float(i) * .01f, mode, 1);
+                check(c.peak >= last && std::isfinite(c.trimDb), "Calibration must be monotone and finite");
+                last = c.peak;
+            }
+            check(OpticalCalibration::map(0, mode, 1).trimDb == 0, "PR zero must not add calibration trim");
+        }
+        for (auto point : {std::array<float, 4>{65, 0, 34.4746196f, 2.2417604f},
+                           std::array<float, 4>{65, 1, 20.9498472f, -.0795498f},
+                           std::array<float, 4>{80, 1, 53.7154437f, 10.6020103f}})
+        {
+            OpticalCompressor calibrated, reference;
+            calibrated.prepare(96000);
+            reference.prepare(96000);
+            LASettings c, r;
+            c.peak = point[0];
+            c.limit = point[1];
+            c.calibration = 1;
+            c.hpf = 0;
+            r = c;
+            r.calibration = 0;
+            r.peak = point[2];
+            for (int i = 0; i < 9600; ++i)
+            {
+                float a = float(.25 * std::sin(2 * pi * 997 * i / 96000.)), b = a, x = a, y = a;
+                calibrated.process(a, b, c);
+                reference.process(x, y, r);
+                check(std::abs(a - x * dbGain(point[3])) < 2.e-6f,
+                      "Integrated calibration must match measured offline signal placement");
+                check(std::abs(calibrated.gr[0] - reference.gr[0]) < 1.e-5f,
+                      "Calibration reference trim must not count as GR");
+            }
+        }
         const float quiet = JfetCell::process(1.e-12f, 6.f, 0.f);
         check(std::abs(quiet / 1.e-12f - dbGain(-6.f)) < 1.e-5f, "JFET root lost quiet signal precision");
         for (float reduction : {0.f, 6.f, 20.f, 60.f})
