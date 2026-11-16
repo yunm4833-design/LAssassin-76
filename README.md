@@ -42,3 +42,7 @@ Two-state T4 recovery plus adapted ZeroComp LDR heat memory; feedback FET detect
 ## License
 
 Project source: **AGPL-3.0-or-later**. JUCE uses its AGPL option. Fonts retain **SIL OFL 1.1**. See LICENSE and THIRD_PARTY_NOTICES.md.
+
+## SignalTrain measurement report
+
+[中文校准报告](Documentation/Calibration/REPORT.zh-CN.md) compares the v0.4.0 optical core against three SignalTrain hardware operating points, with held-out time windows and a fixed-gain control. Offline candidate profiles improve some errors but are not enabled in released binaries. [Reproduction scripts](tools/calibration/README.md).

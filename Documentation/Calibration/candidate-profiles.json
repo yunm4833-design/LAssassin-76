@@ -1,0 +1,26 @@
+{
+  "status": "offline candidates only; NOT enabled in released plugin",
+  "baseline": "v0.4.0",
+  "application": "isolated optical core, Gain=0, HPF=0, HF=0, input trim=0; linear output trim AFTER colour",
+  "interpolation": "none; unmeasured settings not calibrated",
+  "points": [
+    {
+      "mode": 0,
+      "reference_peak": 65.0,
+      "effective_peak": 34.47461957118702,
+      "output_reference_trim_db": 2.241760387022401
+    },
+    {
+      "mode": 1,
+      "reference_peak": 65.0,
+      "effective_peak": 20.949847221094707,
+      "output_reference_trim_db": -0.07954981752782564
+    },
+    {
+      "mode": 1,
+      "reference_peak": 80.0,
+      "effective_peak": 53.71544371621843,
+      "output_reference_trim_db": 10.60201027508927
+    }
+  ]
+}

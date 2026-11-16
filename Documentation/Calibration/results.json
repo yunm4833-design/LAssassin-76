@@ -1,0 +1,257 @@
+{
+  "source": "https://zenodo.org/records/3824876",
+  "source_subset": "Official Test repurposed as temporally split development subset",
+  "fit_ranges_s": [
+    [
+      30,
+      60
+    ],
+    [
+      120,
+      150
+    ],
+    [
+      210,
+      240
+    ]
+  ],
+  "validation_ranges_s": [
+    [
+      330,
+      390
+    ],
+    [
+      510,
+      570
+    ],
+    [
+      690,
+      750
+    ],
+    [
+      810,
+      870
+    ]
+  ],
+  "fit_rate": 11025,
+  "evaluation_rate": 44100,
+  "results": [
+    {
+      "id": "235",
+      "target": "target_235_LA2A_2c__0__65.wav",
+      "mode": 0,
+      "peak": 65.0,
+      "alignment_lags": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alignment_correlations": [
+        0.9969030022621155,
+        0.9924994707107544,
+        0.8491337299346924,
+        0.7995226383209229
+      ],
+      "fit_success": true,
+      "fit_message": "`ftol` termination condition is satisfied.",
+      "fit_nfev": 10,
+      "train_envelope_before_db": 12.641532872302163,
+      "train_envelope_after_db": 0.8668487640813225,
+      "initial": [
+        65.0,
+        0.0,
+        0.0
+      ],
+      "profile": [
+        34.47461957118702,
+        0.0,
+        2.241760387022401
+      ],
+      "validation": {
+        "baseline": {
+          "envelope_rmse_db": 14.542219819118214,
+          "envelope_mae_db": 14.308894635298994,
+          "esr": 0.6757977914220451,
+          "level_error_db": -14.318084746364212,
+          "spectral_rmse_db": 13.550464575927826,
+          "spectral_shape_rmse_db": 1.0426966133020321
+        },
+        "calibrated": {
+          "envelope_rmse_db": 2.8243384247375327,
+          "envelope_mae_db": 1.9798332143659676,
+          "esr": 0.11948859921372473,
+          "level_error_db": -1.2383901690597499,
+          "spectral_rmse_db": 0.9439803304221246,
+          "spectral_shape_rmse_db": 0.9394456019767762
+        },
+        "gain_only_control": {
+          "training_only_trim_db": 12.54691910797799,
+          "envelope_rmse_db": 3.1414752566095534,
+          "envelope_mae_db": 2.2769943867505296,
+          "esr": 0.13367111958493583,
+          "level_error_db": -1.771165638386222
+        }
+      }
+    },
+    {
+      "id": "256",
+      "target": "target_256_LA2A_2c__1__65.wav",
+      "mode": 1,
+      "peak": 65.0,
+      "alignment_lags": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alignment_correlations": [
+        0.9996864795684814,
+        0.9870922565460205,
+        0.8499525785446167,
+        0.7994658946990967
+      ],
+      "fit_success": true,
+      "fit_message": "`ftol` termination condition is satisfied.",
+      "fit_nfev": 8,
+      "train_envelope_before_db": 19.959851488677515,
+      "train_envelope_after_db": 0.772582987208934,
+      "initial": [
+        65.0,
+        0.0,
+        0.0
+      ],
+      "profile": [
+        20.949847221094707,
+        0.0,
+        -0.07954981752782564
+      ],
+      "validation": {
+        "baseline": {
+          "envelope_rmse_db": 25.068788997873334,
+          "envelope_mae_db": 24.891347263239332,
+          "esr": 0.8998313168368808,
+          "level_error_db": -25.112928221974173,
+          "spectral_rmse_db": 24.06142119440988,
+          "spectral_shape_rmse_db": 1.2591914992925477
+        },
+        "calibrated": {
+          "envelope_rmse_db": 3.586181308705567,
+          "envelope_mae_db": 2.7579119926570006,
+          "esr": 0.1508495715693779,
+          "level_error_db": -2.4921288931272283,
+          "spectral_rmse_db": 2.0157186685592743,
+          "spectral_shape_rmse_db": 0.9507474324806028
+        },
+        "gain_only_control": {
+          "training_only_trim_db": 18.927328840961966,
+          "envelope_rmse_db": 6.665922965500472,
+          "envelope_mae_db": 6.0560819500217296,
+          "esr": 0.3281322134564415,
+          "level_error_db": -6.1855993810122065
+        }
+      }
+    },
+    {
+      "id": "259",
+      "target": "target_259_LA2A_2c__1__80.wav",
+      "mode": 1,
+      "peak": 80.0,
+      "alignment_lags": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alignment_correlations": [
+        0.9768704771995544,
+        0.9807682633399963,
+        0.8385549187660217,
+        0.8073368072509766
+      ],
+      "fit_success": true,
+      "fit_message": "`ftol` termination condition is satisfied.",
+      "fit_nfev": 11,
+      "train_envelope_before_db": 24.41708632839126,
+      "train_envelope_after_db": 0.9379976825229458,
+      "initial": [
+        80.0,
+        0.0,
+        0.0
+      ],
+      "profile": [
+        53.71544371621843,
+        0.0,
+        10.60201027508927
+      ],
+      "validation": {
+        "baseline": {
+          "envelope_rmse_db": 28.487182211564882,
+          "envelope_mae_db": 28.270442049113832,
+          "esr": 0.9344057162732069,
+          "level_error_db": -28.54294467548945,
+          "spectral_rmse_db": 26.637237349824257,
+          "spectral_shape_rmse_db": 2.0455612407881603
+        },
+        "calibrated": {
+          "envelope_rmse_db": 5.1179773026298365,
+          "envelope_mae_db": 3.989968012408081,
+          "esr": 0.26582819086036164,
+          "level_error_db": -4.02870174231449,
+          "spectral_rmse_db": 2.318816674503375,
+          "spectral_shape_rmse_db": 1.9676367280906826
+        },
+        "gain_only_control": {
+          "training_only_trim_db": 24.390842101153336,
+          "envelope_rmse_db": 5.230005015180233,
+          "envelope_mae_db": 4.113578221473639,
+          "esr": 0.27377146931965046,
+          "level_error_db": -4.152102574336116
+        }
+      }
+    }
+  ],
+  "files": [
+    {
+      "file": "input_235_.wav",
+      "bytes": 158760058,
+      "sha256": "8243ec0cb85deb16d23dc052732000274c4e417656a787541703ee50ebd9c7eb"
+    },
+    {
+      "file": "target_235_LA2A_2c__0__65.wav",
+      "bytes": 158760058,
+      "sha256": "0731ec4b09de89fca9049a25d959417ef986cba95259c7c4c861be7ac0b8fe5c"
+    },
+    {
+      "file": "input_256_.wav",
+      "bytes": 158760058,
+      "sha256": "8b2376af95b218bb7cd0cad5c13e3028c3b3ca6576136e5614e2e5b531e11dcb"
+    },
+    {
+      "file": "target_256_LA2A_2c__1__65.wav",
+      "bytes": 158760058,
+      "sha256": "32203f98414ba6efe676be0a4da32d8bd2947285866325e211d57f3b340eb5b9"
+    },
+    {
+      "file": "input_259_.wav",
+      "bytes": 158760058,
+      "sha256": "2e0189ac2a6f5a141d17a7c917af115cd0dd854d5428c3ccb8153cf4911a103c"
+    },
+    {
+      "file": "target_259_LA2A_2c__1__80.wav",
+      "bytes": 158760058,
+      "sha256": "2aebeb9f682550991cdd0ac734049a6adb437ed00ccc4dcb6b9fe86d9def7298"
+    }
+  ],
+  "provenance": {
+    "baseline_tag": "v0.4.0",
+    "baseline_commit": "deb6af4bc8273019a6ca2775a905257d9e66ae28",
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "core_sha256": {
+      "Source/DSP/Dynamics.h": "6a798aa31fc939a4833a7dee87a4ba13d3699c6dea4cd924dced49e4c88263a3",
+      "Source/DSP/OpticalMemory.h": "2fcf5feae1614f95b4dfb3c3c34ef0004607b7b747f2d3126fd431132b4144c5",
+      "Source/DSP/PhysicalStages.h": "3187cee3109ab5d6ab252586cbe46d67145f235591dd35821fd9a352cd10ca00"
+    }
+  }
+}
